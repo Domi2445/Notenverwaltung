@@ -1,0 +1,5 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Einstellungen — Nexora</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
+    <body><div class="platform-page"><header class="module-header"><a class="back-link" href="/">← Nexora</a><span class="module-version">Verwalten · Einstellungen</span></header><main class="platform-main"><p class="eyebrow">Arbeitsbereich</p><h1>Einstellungen</h1><p class="module-lead">Passe Nexora an deine Organisation an. Weitere Optionen werden mit jedem Modul ergänzt.</p><section class="settings-list"><div><span>◈</span><strong>Organisation</strong><small>Meine Organisation</small><b>→</b></div><div><span>◌</span><strong>Darstellung</strong><small>Farben, Sprache und persönliche Ansicht</small><b>→</b></div><div><span>⌘</span><strong>Module</strong><small>Installierte Erweiterungen verwalten</small><b><a href="{{ route('marketplace') }}">→</a></b></div></section></main></div></body>
+</html>

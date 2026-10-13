@@ -1,0 +1,3 @@
+@include('public.layout', ['title' => 'Datenschutz — Nexora'])
+<main class="public-doc legal-doc"><p class="eyebrow">Rechtliches</p><h1>Datenschutz</h1><p class="doc-lead">Transparenz über den Umgang mit Daten.</p><section><h2>Grundsatz</h2><p>Nexora verarbeitet Daten nur, soweit dies für den Betrieb der Plattform, die Organisation eines Kundenbereichs oder die Bearbeitung einer Anfrage erforderlich ist.</p><h2>Kontakt</h2><p>Fragen zum Datenschutz beantwortet <a href="mailto:nexora@austit.de">nexora@austit.de</a>.</p><p class="legal-note">Diese Seite ist eine technische Vorlage und muss vor dem Livegang mit den konkreten Hosting-, Analyse-, Zahlungs- und Auftragsverarbeitungsangaben vervollständigt werden.</p></section></main>
+@include('public.footer')
