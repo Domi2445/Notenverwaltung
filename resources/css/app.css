@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import './notenverwaltung.css';
+
+@source '../**/*.blade.php';
+
+/* ---------- Anmeldung und Registrierung ---------- */
+
+.auth {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.auth-aside {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 48px clamp(32px, 5vw, 64px);
+    overflow: hidden;
+    background: linear-gradient(150deg, #312e81 0%, #4f46e5 55%, #7c3aed 100%);
+    color: #fff;
+}
+.auth-aside::before,
+.auth-aside::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.08);
+}
+.auth-aside::before { width: 420px; height: 420px; right: -140px; top: -120px; }
+.auth-aside::after { width: 300px; height: 300px; left: -100px; bottom: -110px; }
+.auth-aside > * { position: relative; }
+.auth-aside .nv-brand { padding: 0; }
+.auth-aside .nv-brand-mark { background: rgb(255 255 255 / 0.18); box-shadow: none; backdrop-filter: blur(6px); }
+.auth-aside .nv-brand-text small { color: rgb(255 255 255 / 0.7); }
+.auth-aside h2 { color: #fff; font-size: clamp(28px, 3vw, 38px); font-weight: 700; line-height: 1.15; max-width: 16ch; }
+.auth-aside p { color: rgb(255 255 255 / 0.78); font-size: 16px; margin-top: 14px; max-width: 42ch; }
+.auth-features { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.auth-features li { display: flex; align-items: center; gap: 12px; color: rgb(255 255 255 / 0.9); font-weight: 500; }
+.auth-features li span {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: rgb(255 255 255 / 0.14);
+}
+
+.auth-main { display: grid; place-items: center; padding: 40px 20px; }
+.auth-card { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 24px; }
+.auth-card .nv-brand { display: none; padding: 0; }
+.auth-card form { display: flex; flex-direction: column; gap: 16px; }
+.auth-check { display: flex; align-items: center; gap: 8px; color: var(--nv-text-2); font-size: 14px; cursor: pointer; }
+.auth-check input { width: 16px; height: 16px; accent-color: var(--nv-primary); }
+.auth-links { display: flex; flex-direction: column; gap: 10px; align-items: center; font-size: 14px; color: var(--nv-text-2); }
+.auth-links a { color: var(--nv-primary-text); font-weight: 600; }
+.auth-links a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.auth-divider { display: flex; align-items: center; gap: 12px; color: var(--nv-text-3); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--nv-border); }
+
+@media (max-width: 900px) {
+    .auth { grid-template-columns: 1fr; }
+    .auth-aside { display: none; }
+    .auth-card .nv-brand { display: flex; }
+}
