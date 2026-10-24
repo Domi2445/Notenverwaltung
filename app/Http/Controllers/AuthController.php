@@ -9,53 +9,61 @@ class AuthController extends Controller
     // GET /login – Route "login" (siehe docs/PLAN.md, Schritt 3)
     public function showLogin()
     {
-        // TODO: Die View "auth.login" zurückgeben -> return view('...');
+
+        return view('auth.login');
     }
 
     // POST /login – Route "login.store"
     public function login(Request $request)
     {
-        // TODO:
-        // 1. Eingaben prüfen: email (Pflicht, E-Mail-Format) und password (Pflicht)
-        //    -> $credentials = $request->validate([...]);
-        // 2. Anmelden versuchen -> Auth::attempt($credentials, $request->boolean('remember'))
-        //    "remember" ist die Checkbox "Angemeldet bleiben".
-        // 3. Wenn das fehlschlägt: zurück zum Formular mit Fehlermeldung und der alten E-Mail
-        //    -> back()->withErrors(['email' => '...'])->onlyInput('email')
-        // 4. Bei Erfolg: Session erneuern (Schutz vor Session-Fixation)
-        //    -> $request->session()->regenerate();
-        // 5. Zur Übersicht weiterleiten -> redirect()->intended(route('dashboard'))
-        //
-        // Nicht vergessen: oben "use Illuminate\Support\Facades\Auth;" ergänzen
+
+        if($credentials = request()->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ])) {
+            if(Auth::attempt($credentials, $request->boolean('remember'))) {
+                $request->session()->regenerate();
+                return redirect()->intended(route('dashboard'));
+            }
+        }
+        return back()->withErrors(['email' => 'Falsche E-Mail oder Passwort'])->onlyInput('email');
+
     }
 
     // GET /registrieren – Route "register"
     public function showRegister()
     {
-        // TODO: Die View "auth.register" zurückgeben
+
+
+        return view('auth.register');
     }
 
     // POST /registrieren – Route "register.store"
     public function register(Request $request)
     {
-        // TODO:
-        // 1. Eingaben prüfen:
-        //    - name: Pflicht, Text, max. 120 Zeichen
-        //    - email: Pflicht, E-Mail-Format, darf es noch nicht geben -> 'unique:users,email'
-        //    - password: Pflicht, mind. 8 Zeichen, muss mit password_confirmation übereinstimmen -> 'confirmed'
-        // 2. Benutzer anlegen -> User::create([...])
-        //    Das Passwort wird automatisch verschlüsselt, weil im User-Model 'password' => 'hashed' gecastet ist.
-        // 3. Direkt anmelden -> Auth::login($user);
-        // 4. Session erneuern und zur Übersicht weiterleiten
+
+
+
+        if($request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'min:8', 'confirmed'],
+        ])) {
+            $user = User::create($request->all());
+            Auth::login($user);
+            $request->session()->regenerate();
+            return redirect()->intended(route('dashboard'));
+        }
     }
 
     // POST /logout – Route "logout"
     public function logout(Request $request)
     {
-        // TODO:
-        // 1. Abmelden -> Auth::logout();
-        // 2. Session ungültig machen und CSRF-Token erneuern
-        //    -> $request->session()->invalidate();  und  $request->session()->regenerateToken();
-        // 3. Zur Login-Seite weiterleiten
+
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login');
     }
 }
