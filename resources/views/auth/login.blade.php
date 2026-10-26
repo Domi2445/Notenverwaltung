@@ -22,8 +22,8 @@
         <button type="submit" class="btn btn-primary btn-block">Anmelden</button>
     </form>
 
-    {{-- Registrieren gibt es nur für den allerersten Benutzer (wird Admin) --}}
-    @unless (\App\Models\User::exists())
+    {{-- Registrieren gibt es nur, solange es noch keinen Admin gibt (wer sich registriert, wird Admin) --}}
+    @unless (\App\Models\User::adminExists())
         <div class="auth-links">
             <span>Noch kein Konto? <a href="{{ route('register') }}">Admin-Konto einrichten</a></span>
         </div>

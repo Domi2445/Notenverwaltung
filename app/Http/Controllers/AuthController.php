@@ -32,11 +32,11 @@ class AuthController extends Controller
     }
 
     // GET /registrieren – Route "register"
-    // Registrieren geht nur, solange es noch keinen Benutzer gibt.
+    // Registrieren geht nur, solange es noch keinen Admin gibt.
     // Alle weiteren Logins legt der Admin über die Oberfläche an.
     public function showRegister()
     {
-        if (User::exists()) {
+        if (User::adminExists()) {
             return redirect()->route('login');
         }
 
@@ -46,7 +46,7 @@ class AuthController extends Controller
     // POST /registrieren – Route "register.store"
     public function register(Request $request)
     {
-        if (User::exists()) {
+        if (User::adminExists()) {
             return redirect()->route('login');
         }
 
@@ -56,7 +56,7 @@ class AuthController extends Controller
             'password' => ['required', 'min:8', 'confirmed'],
         ]);
 
-        // Der allererste Benutzer wird Admin
+        // Wer sich als Erstes registriert, wird Admin
         $validated['role'] = 'admin';
 
         $user = User::create($validated);

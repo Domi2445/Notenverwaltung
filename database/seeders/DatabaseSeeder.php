@@ -15,19 +15,12 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      * Ausführen mit: php artisan migrate:fresh --seed
-     * Alle Logins haben das Passwort "demo1234".
+     * Die Demo-Logins haben das Passwort "demo1234".
+     * Einen Admin legt der Seeder nicht an: Wer sich danach als Erstes registriert, wird Admin.
      */
     public function run(): void
     {
-        // 1. Admin-Konto
-        User::create([
-            'name' => 'Schulverwaltung',
-            'email' => 'admin@schule.de',
-            'password' => 'demo1234',
-            'role' => 'admin',
-        ]);
-
-        // 2. Lehrkräfte
+        // 1. Lehrkräfte
         $schmidt = Teacher::create(['name' => 'Anna Schmidt', 'code' => 'SCH', 'email' => 'schmidt@schule.de', 'phone' => '0711 123401', 'subjects' => 'Mathematik, Physik']);
         $mueller = Teacher::create(['name' => 'Thomas Müller', 'code' => 'MUE', 'email' => 'mueller@schule.de', 'phone' => '0711 123402', 'subjects' => 'Deutsch, Geschichte']);
         $weber = Teacher::create(['name' => 'Laura Weber', 'code' => 'WEB', 'email' => 'weber@schule.de', 'subjects' => 'Englisch, Französisch']);
@@ -42,7 +35,7 @@ class DatabaseSeeder extends Seeder
             'teacher_id' => $schmidt->id,
         ]);
 
-        // 3. Schüler in drei Klassen
+        // 2. Schüler in drei Klassen
         $students = [];
         $names = [
             '8a' => ['Sophie Keller', 'Leon Wagner', 'Mia Becker', 'Paul Hoffmann'],
@@ -69,14 +62,14 @@ class DatabaseSeeder extends Seeder
             'student_id' => $students[0]->id,
         ]);
 
-        // 4. Arbeiten – zwei geschrieben, drei in der Zukunft
+        // 3. Arbeiten – zwei geschrieben, drei in der Zukunft
         $mathe8a = Exam::create(['title' => 'Lineare Funktionen', 'subject' => 'Mathematik', 'class_name' => '8a', 'teacher_id' => $schmidt->id, 'exam_date' => now()->subDays(10), 'type' => 'Klassenarbeit', 'weighting' => 2.0, 'status' => 'completed', 'topics' => 'Steigung, y-Achsenabschnitt, Geraden zeichnen']);
         $deutsch9b = Exam::create(['title' => 'Erörterung', 'subject' => 'Deutsch', 'class_name' => '9b', 'teacher_id' => $mueller->id, 'exam_date' => now()->subDays(4), 'type' => 'Klassenarbeit', 'weighting' => 2.0, 'status' => 'completed']);
         Exam::create(['title' => 'Vokabeltest Unit 3', 'subject' => 'Englisch', 'class_name' => '8a', 'teacher_id' => $weber->id, 'exam_date' => now()->addDays(5), 'type' => 'Kurzarbeit/Test', 'weighting' => 1.0, 'status' => 'planned']);
         Exam::create(['title' => 'Zellbiologie', 'subject' => 'Biologie', 'class_name' => '10a', 'teacher_id' => $fischer->id, 'exam_date' => now()->addDays(8), 'type' => 'Klassenarbeit', 'weighting' => 2.0, 'status' => 'planned', 'topics' => 'Zellaufbau, Mitose']);
         Exam::create(['title' => 'Quadratische Gleichungen', 'subject' => 'Mathematik', 'class_name' => '9b', 'teacher_id' => $schmidt->id, 'exam_date' => now()->addDays(12), 'type' => 'Klassenarbeit', 'weighting' => 2.0, 'status' => 'planned']);
 
-        // 5. Noten – zu den geschriebenen Arbeiten und ein paar mündliche
+        // 4. Noten – zu den geschriebenen Arbeiten und ein paar mündliche
         $examNotes = [$mathe8a, $deutsch9b];
         foreach ($students as $student) {
             foreach ($examNotes as $exam) {
@@ -103,7 +96,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 6. Stundenplan – Montag bis Freitag, damit auch "heute" etwas angezeigt wird
+        // 5. Stundenplan – Montag bis Freitag, damit auch "heute" etwas angezeigt wird
         $lessons = [
             '8a' => [['Mathematik', $schmidt, 'R 101', 'mint'], ['Deutsch', $mueller, 'R 101', 'sky'], ['Englisch', $weber, 'R 104', 'purple'], ['Biologie', $fischer, 'Bio 1', 'coral']],
             '9b' => [['Deutsch', $mueller, 'R 202', 'sky'], ['Mathematik', $schmidt, 'R 202', 'mint'], ['Chemie', $fischer, 'Chem 1', 'yellow'], ['Englisch', $weber, 'R 205', 'purple']],

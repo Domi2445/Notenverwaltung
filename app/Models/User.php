@@ -62,6 +62,12 @@ class User extends Authenticatable
         return $this->belongsTo(Student::class);
     }
 
+    // Gibt es schon einen Admin? Solange nicht, ist das Registrieren offen.
+    public static function adminExists(): bool
+    {
+        return static::where('role', 'admin')->exists();
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
