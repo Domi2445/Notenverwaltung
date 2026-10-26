@@ -11,10 +11,10 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('class_name');
-            $table->string('email');
-            $table->date('date_of_birth');
-            $table->string('phone_number');
-            $table->string('address');
+            $table->string('email')->nullable();
+            $table->date('birthday')->nullable();
+            $table->string('address')->nullable();
+            $table->text('notes')->nullable();
 
             // TODO: an die Oberfläche anpassen
             // 1. date_of_birth heißt in der Oberfläche "birthday" -> Spalte umbenennen

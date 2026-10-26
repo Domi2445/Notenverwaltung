@@ -1,9 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Noten')
+@php
+    $isStudent = auth()->user()->isStudent();
+    $canEdit = auth()->user()->canEditGrades();
+@endphp
+
+@section('title', $isStudent ? 'Meine Noten' : 'Noten')
 @section('eyebrow', 'Leistungen')
-@section('heading', 'Noten')
-@section('lead', 'Leistungen übersichtlich erfassen und sicher im Blick behalten.')
+@section('heading', $isStudent ? 'Meine Noten' : 'Noten')
+@section('lead', $isStudent ? 'Alle deine Leistungen und dein Notenschnitt auf einen Blick.' : 'Leistungen übersichtlich erfassen und sicher im Blick behalten.')
 
 @section('content')
     <section class="stats">
@@ -70,7 +75,8 @@
         </section>
     @endif
 
-    <div class="split split-form">
+    <div @class(['split split-form' => $canEdit])>
+        @if ($canEdit)
         <form class="card" method="POST" action="{{ route('grades.store') }}">
             @csrf
             <div class="card-header">
@@ -138,15 +144,17 @@
 
             <button class="btn btn-primary btn-block" type="submit">Note speichern</button>
         </form>
+        @endif
 
         <section class="card">
             <div class="card-header">
                 <div>
-                    <h2>Letzte Einträge</h2>
+                    <h2>{{ $isStudent ? 'Deine Noten' : 'Letzte Einträge' }}</h2>
                     <p class="card-subtitle">{{ $grades->count() }} {{ $grades->count() === 1 ? 'Note' : 'Noten' }}</p>
                 </div>
             </div>
 
+            @if ($canEdit)
             <div class="toolbar">
                 <div class="pills">
                     <a href="{{ route('grades.index', ['subject' => $subjectFilter, 'search' => $search]) }}" @class(['pill', 'active' => ! $classFilter])>Alle</a>
@@ -161,12 +169,13 @@
                     <input type="search" name="search" value="{{ $search }}" placeholder="Schüler suchen …" aria-label="Schüler suchen">
                 </form>
             </div>
+            @endif
 
             @if ($grades->isEmpty())
                 <div class="empty">
                     <x-icon name="star" size="22" />
                     <p>Noch keine Noten erfasst.</p>
-                    <small>Dein erster Eintrag erscheint hier.</small>
+                    <small>{{ $isStudent ? 'Sobald eine Lehrkraft eine Note einträgt, erscheint sie hier.' : 'Dein erster Eintrag erscheint hier.' }}</small>
                 </div>
             @else
                 <ul class="list">
@@ -181,13 +190,15 @@
                                 @endif
                             </div>
                             <x-grade :value="$entry->grade" />
-                            <form method="POST" action="{{ route('grades.destroy', $entry) }}" onsubmit="return confirm('Note wirklich löschen?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-icon btn-danger" title="Löschen" aria-label="Note löschen">
-                                    <x-icon name="trash" size="16" />
-                                </button>
-                            </form>
+                            @if ($canEdit)
+                                <form method="POST" action="{{ route('grades.destroy', $entry) }}" onsubmit="return confirm('Note wirklich löschen?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-icon btn-danger" title="Löschen" aria-label="Note löschen">
+                                        <x-icon name="trash" size="16" />
+                                    </button>
+                                </form>
+                            @endif
                         </li>
                     @endforeach
                 </ul>

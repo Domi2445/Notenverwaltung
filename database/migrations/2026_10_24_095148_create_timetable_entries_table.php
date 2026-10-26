@@ -27,6 +27,16 @@ return new class extends Migration
             //    -> $table->unique([... drei Spalten ...]);
 
             $table->timestamps();
+            $table->string('class_name');
+            $table->string('subject');
+            $table->foreignId('teacher_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedTinyInteger('day_of_week');
+            $table->unsignedTinyInteger('period');
+            $table->string('time_start', 5);
+            $table->string('time_end', 5);
+            $table->string('room')->nullable();
+            $table->string('color')->default('mint');
+            $table->unique(['class_name', 'day_of_week', 'period']);
         });
     }
 

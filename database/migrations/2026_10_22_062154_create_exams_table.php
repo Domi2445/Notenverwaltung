@@ -21,6 +21,15 @@ return new class extends Migration {
             // 7. topics (Themen) als längerer Text, optional -> text(...)->nullable()
 
             $table->timestamps();
+            $table->string('title');
+            $table->string('subject');
+            $table->string('class_name');
+            $table->foreignId('teacher_id')->nullable()->constrained()->nullOnDelete();
+            $table->date('exam_date');
+            $table->string('type')->default('Klassenarbeit');
+            $table->decimal('weighting', 3, 1)->default(1.0);
+            $table->string('status')->default('planned');
+            $table->text('topics')->nullable();
         });
     }
 

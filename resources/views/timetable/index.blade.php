@@ -5,11 +5,17 @@
 @section('heading', 'Stundenplan')
 @section('lead', 'Wochenübersicht planen, Räume koordinieren und Lehrkräfte zuweisen.')
 
-@section('actions')
-    <button class="btn btn-primary" onclick="openAddModal()">
-        <x-icon name="plus" size="16" /> Stunde eintragen
-    </button>
-@endsection
+@php
+    $isAdmin = auth()->user()->isAdmin();
+@endphp
+
+@if ($isAdmin)
+    @section('actions')
+        <button class="btn btn-primary" onclick="openAddModal()">
+            <x-icon name="plus" size="16" /> Stunde eintragen
+        </button>
+    @endsection
+@endif
 
 @section('content')
     <div class="toolbar">
@@ -19,6 +25,7 @@
             @endforeach
         </div>
 
+        @unless (auth()->user()->isStudent())
         <form method="GET" action="{{ route('timetable.index') }}">
             <select name="teacher_id" onchange="this.form.submit()" class="select" aria-label="Nach Lehrkraft filtern">
                 <option value="">Nach Klasse anzeigen</option>
@@ -27,6 +34,7 @@
                 @endforeach
             </select>
         </form>
+        @endunless
     </div>
 
     <div class="card timetable-card">
@@ -50,13 +58,15 @@
                                 <div class="lesson tone-{{ $entry->color }}">
                                     <div class="lesson-top">
                                         <strong>{{ $entry->subject }}</strong>
-                                        <form method="POST" action="{{ route('timetable.destroy', $entry) }}" onsubmit="return confirm('Stunde wirklich löschen?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="lesson-delete" title="Löschen" aria-label="Stunde löschen">
-                                                <x-icon name="x" size="13" />
-                                            </button>
-                                        </form>
+                                        @if ($isAdmin)
+                                            <form method="POST" action="{{ route('timetable.destroy', $entry) }}" onsubmit="return confirm('Stunde wirklich löschen?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="lesson-delete" title="Löschen" aria-label="Stunde löschen">
+                                                    <x-icon name="x" size="13" />
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                     <span class="lesson-meta">
                                         @if ($entry->room)<span><x-icon name="pin" size="12" /> {{ $entry->room }}</span>@endif
@@ -64,7 +74,7 @@
                                         @if ($teacherFilter)<span>Kl. {{ $entry->class_name }}</span>@endif
                                     </span>
                                 </div>
-                            @else
+                            @elseif ($isAdmin)
                                 <button type="button" class="tt-add" onclick="openAddModal({{ $dayNum }}, {{ $pNum }})" aria-label="Stunde am {{ $dayName }}, {{ $pNum }}. Stunde eintragen">
                                     <x-icon name="plus" size="16" />
                                 </button>
@@ -76,6 +86,7 @@
         </div>
     </div>
 
+    @if ($isAdmin)
     <x-modal id="add-lesson-dialog" title="Unterrichtsstunde anlegen" :action="route('timetable.store')" submit="Stunde speichern">
         <label class="field">
             <span>Klasse</span>
@@ -126,6 +137,7 @@
             </div>
         </fieldset>
     </x-modal>
+    @endif
 @endsection
 
 @push('scripts')

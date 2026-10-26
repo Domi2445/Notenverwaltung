@@ -18,6 +18,22 @@ class TeacherController extends Controller
         // 3. Wenn gesucht wird: Name ODER Kürzel ODER Fächer enthält den Text (wie bei Schülern)
         // 4. Nach Name sortieren und laden
         // 5. View "teachers.index" mit teachers und search zurückgeben
+
+        $search = $request->query('search');
+
+        $query = Teacher::withCount(['timetableEntries', 'exams']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('subjects', 'like', "%{$search}%");
+            });
+        }
+
+        $teachers = $query->orderBy('name')->get();
+
+        return view('teachers.index', compact('teachers', 'search'));
     }
 
     // POST /lehrer – Route "teachers.store"
@@ -30,6 +46,23 @@ class TeacherController extends Controller
         //    - email (optional, E-Mail-Format), phone, subjects, notes: optional
         // 2. Tipp: Kürzel einheitlich in Großbuchstaben speichern -> strtoupper(...)
         // 3. Speichern und mit Meldung zurück zur Liste
+
+        $validated = $request->validate(
+            [
+
+                'name' => 'required',
+                'code' => 'required|max:10|unique:teachers,code',
+                'email' => 'nullable|email',
+                'phone' => 'nullable',
+                'subjects' => 'nullable',
+                'notes' => 'nullable',
+            ]
+        );
+
+        $validated['code'] = strtoupper($validated['code']);
+        Teacher::create($validated);
+
+        return redirect()->route('teachers.index')->with('status', 'Lehrkraft erfolgreich gespeichert.');
     }
 
     // DELETE /lehrer/{teacher} – Route "teachers.destroy"
@@ -38,5 +71,7 @@ class TeacherController extends Controller
         // TODO: Löschen und mit Meldung zurück zur Liste.
         // Was passiert dabei mit Arbeiten und Stunden dieser Lehrkraft? Das hast du in den
         // Migrationen festgelegt (nullOnDelete) – probiere es aus!
+        $teacher->delete();
+        return redirect()->route('teachers.index')->with('status', 'Lehrer erfolgreich gelöscht.');
     }
 }

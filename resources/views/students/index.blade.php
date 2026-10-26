@@ -5,11 +5,15 @@
 @section('heading', 'Schülerinnen & Schüler')
 @section('lead', 'Klassen verwalten, Leistungen und Notenschnitte einsehen.')
 
-@section('actions')
-    <button class="btn btn-primary" onclick="document.getElementById('add-student-dialog').showModal()">
-        <x-icon name="plus" size="16" /> Schüler/in aufnehmen
-    </button>
-@endsection
+@php $isAdmin = auth()->user()->isAdmin(); @endphp
+
+@if ($isAdmin)
+    @section('actions')
+        <button class="btn btn-primary" onclick="document.getElementById('add-student-dialog').showModal()">
+            <x-icon name="plus" size="16" /> Schüler/in aufnehmen
+        </button>
+    @endsection
+@endif
 
 @section('content')
     <div class="toolbar">
@@ -31,7 +35,9 @@
         <div class="card empty">
             <x-icon name="graduation" size="22" />
             <p>Keine Schüler/innen gefunden.</p>
-            <small>Lege über „Schüler/in aufnehmen“ die ersten Einträge an.</small>
+            @if ($isAdmin)
+                <small>Lege über „Schüler/in aufnehmen“ die ersten Einträge an.</small>
+            @endif
         </div>
     @else
         <div class="entity-grid">
@@ -69,19 +75,32 @@
                                 <x-grade :value="$g->grade" class="grade-sm" title="{{ $g->subject }}" />
                             @endforeach
                         </div>
-                        <form method="POST" action="{{ route('students.destroy', $student) }}" onsubmit="return confirm('Schüler/in wirklich löschen?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-icon btn-danger" title="Löschen" aria-label="Schüler/in löschen">
-                                <x-icon name="trash" size="16" />
-                            </button>
-                        </form>
+                        @if ($isAdmin)
+                            <div class="chips">
+                                @if (Route::has('users.store'))
+                                    <button type="button" class="btn-icon" title="Login anlegen" aria-label="Login für {{ $student->name }} anlegen"
+                                            onclick="openAccountDialog({{ $student->id }}, @js($student->name), @js($student->email))">
+                                        <x-icon name="user" size="16" />
+                                    </button>
+                                @endif
+                                <form method="POST" action="{{ route('students.destroy', $student) }}" onsubmit="return confirm('Schüler/in wirklich löschen?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-icon btn-danger" title="Löschen" aria-label="Schüler/in löschen">
+                                        <x-icon name="trash" size="16" />
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
                     </div>
                 </article>
             @endforeach
         </div>
     @endif
 
+    @include('partials.account-dialog', ['role' => 'student'])
+
+    @if ($isAdmin)
     <x-modal id="add-student-dialog" title="Schüler/in aufnehmen" :action="route('students.store')" submit="Schüler/in anlegen">
         <label class="field">
             <span>Vollständiger Name</span>
@@ -104,4 +123,5 @@
             <textarea name="notes" rows="2" placeholder="Besonderheiten, Bemerkungen …"></textarea>
         </label>
     </x-modal>
+    @endif
 @endsection

@@ -24,6 +24,33 @@ class StudentController extends Controller
         // 6. $classes: alle vorhandenen Klassennamen für die Filter-Buttons
         //    -> Student::pluck('class_name')->unique()->sort()->values()
         // 7. View "students.index" mit students, classes, classFilter, search zurückgeben
+
+        $classFilter = $request->query('class');
+        $search = $request->query('search');
+
+        // Lehrkräfte sehen nur die Schüler ihrer Klassen
+        $visibleClasses = $request->user()->visibleClasses();
+
+        $query = Student::with('grades');
+
+        if ($visibleClasses !== null) {
+            $query->whereIn('class_name', $visibleClasses);
+        }
+        if ($classFilter) {
+            $query->where('class_name', $classFilter);
+        }
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $students = $query->orderBy('class_name')->orderBy('name')->get();
+        $classes = $visibleClasses === null
+            ? Student::pluck('class_name')->unique()->sort()->values()
+            : $visibleClasses->sort()->values();
+
+        return view('students.index', compact('students', 'classes', 'classFilter', 'search'));
     }
 
     // POST /schueler – Route "students.store"
@@ -40,6 +67,17 @@ class StudentController extends Controller
         // 3. Zurück zur Liste mit Erfolgsmeldung
         //    -> return redirect()->route('students.index')->with('status', '...');
         //    Die Meldung zeigt das Layout automatisch grün an.
+        $validated = $request->validate([
+            'name' => 'required',
+            'class_name' => 'required',
+            'email' => 'nullable|email',
+            'birthday' => 'nullable|date',
+            'phone_number' => 'nullable',
+            'address' => 'nullable',
+            'notes' => 'nullable',
+        ]);
+        Student::create($validated);
+        return redirect()->route('students.index')->with('status', 'Schüler wurde angelegt');
     }
 
     // DELETE /schueler/{student} – Route "students.destroy"
@@ -49,5 +87,7 @@ class StudentController extends Controller
         // Laravel hat den Schüler über die ID in der URL schon geladen (Route Model Binding).
         // 1. Löschen -> $student->delete();
         // 2. Zurück zur Liste mit Meldung "… wurde gelöscht"
+        $student->delete();
+        return redirect()->route('students.index')->with('status', 'Schüler wurde gelöscht');
     }
 }

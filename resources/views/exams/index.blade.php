@@ -5,11 +5,15 @@
 @section('heading', 'Arbeiten & Prüfungen')
 @section('lead', 'Klassenarbeiten, Klausuren und Tests planen und nachverfolgen.')
 
-@section('actions')
-    <button class="btn btn-primary" onclick="document.getElementById('add-exam-dialog').showModal()">
-        <x-icon name="plus" size="16" /> Arbeit ansetzen
-    </button>
-@endsection
+@php $canEdit = auth()->user()->canEditGrades(); @endphp
+
+@if ($canEdit)
+    @section('actions')
+        <button class="btn btn-primary" onclick="document.getElementById('add-exam-dialog').showModal()">
+            <x-icon name="plus" size="16" /> Arbeit ansetzen
+        </button>
+    @endsection
+@endif
 
 @section('content')
     <section class="stats stats-3">
@@ -61,7 +65,9 @@
         <div class="card empty">
             <x-icon name="clipboard" size="22" />
             <p>Keine Arbeiten gefunden.</p>
-            <small>Über „Arbeit ansetzen“ trägst du eine Klassenarbeit ein.</small>
+            @if ($canEdit)
+                <small>Über „Arbeit ansetzen“ trägst du eine Klassenarbeit ein.</small>
+            @endif
         </div>
     @else
         <div class="stack">
@@ -94,6 +100,15 @@
                     </div>
 
                     <div class="exam-actions">
+                        @if (! $canEdit)
+                            <span @class(['status-toggle', 'is-done' => $exam->status === 'completed'])>
+                                @if ($exam->status === 'completed')
+                                    <x-icon name="check" size="14" /> Geschrieben
+                                @else
+                                    <x-icon name="circle" size="14" /> Offen
+                                @endif
+                            </span>
+                        @else
                         <form method="POST" action="{{ route('exams.status', $exam) }}">
                             @csrf
                             <button type="submit" @class(['status-toggle', 'is-done' => $exam->status === 'completed']) title="Status umschalten">
@@ -111,12 +126,14 @@
                                 <x-icon name="trash" size="16" />
                             </button>
                         </form>
+                        @endif
                     </div>
                 </article>
             @endforeach
         </div>
     @endif
 
+    @if ($canEdit)
     <x-modal id="add-exam-dialog" title="Arbeit ansetzen" :action="route('exams.store')" submit="Arbeit eintragen">
         <label class="field field-wide">
             <span>Titel / Thema</span>
@@ -174,4 +191,5 @@
             <textarea name="topics" rows="2" placeholder="z. B. Kapitel 4 und 5, Taschenrechner erlaubt"></textarea>
         </label>
     </x-modal>
+    @endif
 @endsection

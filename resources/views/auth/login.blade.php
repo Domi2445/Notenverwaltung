@@ -1,9 +1,9 @@
 @extends('auth.layout')
 
 @section('title', 'Anmelden')
-@section('eyebrow', 'Zugang für Lehrkräfte')
+@section('eyebrow', 'Zugang für Lehrkräfte und Schüler')
 @section('heading', 'Willkommen zurück.')
-@section('lead', 'Melde dich an, um Noten, Klassen und Stundenpläne deiner Schule zu verwalten.')
+@section('lead', 'Melde dich mit den Zugangsdaten an, die du von der Schulverwaltung bekommen hast.')
 
 @section('content')
     <form method="POST" action="{{ route('login.store') }}">
@@ -22,7 +22,10 @@
         <button type="submit" class="btn btn-primary btn-block">Anmelden</button>
     </form>
 
-    <div class="auth-links">
-        <span>Noch kein Konto? <a href="{{ route('register') }}">Jetzt registrieren</a></span>
-    </div>
+    {{-- Registrieren gibt es nur für den allerersten Benutzer (wird Admin) --}}
+    @unless (\App\Models\User::exists())
+        <div class="auth-links">
+            <span>Noch kein Konto? <a href="{{ route('register') }}">Admin-Konto einrichten</a></span>
+        </div>
+    @endunless
 @endsection

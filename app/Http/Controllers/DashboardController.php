@@ -2,7 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Exam;
+use App\Models\Grade;
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\TimetableEntry;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Cache;
+
 
 class DashboardController extends Controller
 {
@@ -26,5 +36,39 @@ class DashboardController extends Controller
         //    gruppiert nach Klasse -> with('teacher') … orderBy('period') … get()->groupBy('class_name')
         //
         // Zum Schluss alles an die View "dashboard" übergeben -> view('dashboard', compact(...))
+
+        $user = $request->user();
+
+        // Schüler sehen nur eigene Noten sowie Arbeiten und Unterricht ihrer Klasse,
+        // Lehrkräfte Noten und Arbeiten ihrer Klassen und ihre eigenen Stunden
+        $grades = Grade::query();
+        $exams = Exam::query();
+        $lessons = TimetableEntry::query();
+        $visibleClasses = $user->visibleClasses();
+        if ($user->isStudent()) {
+            $grades->where('student_id', $user->student_id ?? 0);
+            $exams->whereIn('class_name', $visibleClasses);
+            $lessons->whereIn('class_name', $visibleClasses);
+        } elseif ($user->isTeacher()) {
+            $grades->whereIn('class_name', $visibleClasses);
+            $exams->whereIn('class_name', $visibleClasses);
+            $lessons->where('teacher_id', $user->teacher_id ?? 0);
+        }
+
+        $studentCount = Student::count();
+        $teacherCount = Teacher::count();
+        $gradesCount = (clone $grades)->count();
+        $averageGrade = (clone $grades)->avg('grade');
+        $averageGrade = $averageGrade ? round($averageGrade, 2) : null;
+
+        $classes = Student::pluck('class_name')->unique();
+        $upcomingExams = $exams->where('exam_date', '>=', today())->orderBy('exam_date')->take(5)->get();
+        $recentGrades = $grades->latest()->take(6)->get();
+        $dayOfWeek = now()->dayOfWeekIso;
+        $dayOfWeek = $dayOfWeek > 5 ? 1 : $dayOfWeek;
+        $dayName = TimetableEntry::DAYS[$dayOfWeek];
+        $todaySchedule = $lessons->where('day_of_week', $dayOfWeek)->with('teacher')->orderBy('period')->get()->groupBy('class_name');
+
+        return view('dashboard', compact('studentCount', 'teacherCount', 'gradesCount', 'averageGrade', 'classes', 'upcomingExams', 'recentGrades', 'dayName', 'todaySchedule'));
     }
 }

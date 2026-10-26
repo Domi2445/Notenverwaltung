@@ -5,12 +5,20 @@
 @section('heading', 'Guten Tag, '.auth()->user()->name.'.')
 @section('lead', 'Schüler, Lehrkräfte, Unterricht, Arbeiten und Noten auf einen Blick.')
 
-@section('actions')
-    <a href="{{ route('grades.index') }}" class="btn btn-primary">
-        <x-icon name="plus" size="16" /> Note erfassen
-    </a>
-    <a href="{{ route('exams.index') }}" class="btn btn-secondary">Arbeit planen</a>
-@endsection
+@if (auth()->user()->canEditGrades())
+    @section('actions')
+        <a href="{{ route('grades.index') }}" class="btn btn-primary">
+            <x-icon name="plus" size="16" /> Note erfassen
+        </a>
+        <a href="{{ route('exams.index') }}" class="btn btn-secondary">Arbeit planen</a>
+    @endsection
+@else
+    @section('actions')
+        <a href="{{ route('grades.index') }}" class="btn btn-primary">
+            <x-icon name="star" size="16" /> Meine Noten
+        </a>
+    @endsection
+@endif
 
 @section('content')
     <section class="stats">

@@ -28,6 +28,14 @@ return new class extends Migration
             // 6. assessment (z. B. "Klassenarbeit 1") und comment: beide optional -> nullable()
 
             $table->timestamps();
+            $table->foreignId('student_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('exam_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('student_name');
+            $table->string('class_name');
+            $table->string('subject');
+            $table->decimal('grade', 2, 1);
+            $table->string('assessment')->nullable();
+            $table->text('comment')->nullable();
         });
     }
 
